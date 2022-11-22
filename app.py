@@ -24,7 +24,7 @@ st.markdown(reduce_header_height_style, unsafe_allow_html=True)
 def get_data(path):
     return pd.read_csv(path, parse_dates=['FlightDate'])
 
-df_cleaned = get_data('.\\data\\cleaned\\2022.csv')
+df_cleaned = get_data('./data/cleaned/2022.csv')
 
 
 # -----------Side bar------------
