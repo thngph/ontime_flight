@@ -44,14 +44,14 @@ d_start = st.sidebar.date_input(
     "Start date:",
     datetime.date(2022, 1, 1),
     min_value=datetime.date(2022, 1, 1),
-    max_value=datetime.date(2022, 3, 31))
+    max_value=datetime.date(2022, 3, 15))
 st.sidebar.write(d_start)
 
 d_end = st.sidebar.date_input(
     "End date:",
-    datetime.date(2022, 3, 31),
+    datetime.date(2022, 3, 15),
     min_value=datetime.date(2022, 1, 1),
-    max_value=datetime.date(2022, 3, 31))
+    max_value=datetime.date(2022, 3, 15))
 st.sidebar.write(d_end)
 
 # year = st.sidebar.slider(
