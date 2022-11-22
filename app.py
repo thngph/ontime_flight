@@ -9,8 +9,8 @@ import plost
 
 # Setting the page title, layout, icon and initial sidebar state.
 
-st.set_page_config(page_title="Airport Ontime Performance",layout='wide', 
-page_icon=':airplane:', initial_sidebar_state='expanded')
+st.set_page_config(page_title="Reporting-Airline Ontime Performance",layout='wide', 
+page_icon=':airplane:', initial_sidebar_state='collapsed')
 
 padding = 0
 reduce_header_height_style = """
