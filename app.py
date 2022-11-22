@@ -126,7 +126,7 @@ with col1:
 
 
 
-airlines = pd.read_csv('.\\data\\L_UNIQUE_CARRIERS.csv',
+airlines = pd.read_csv('./data/L_UNIQUE_CARRIERS.csv',
                        names=['CODE', 'AIRLINE'])
 
 c2airline = airlines.set_index('CODE')['AIRLINE'].to_dict()
