@@ -142,15 +142,18 @@ col1, col2, col3 = st.columns([4, 7, 5])
 with col1:
 
     st.markdown('### Cause of Delay')
-
-
-    col1.plotly_chart(px.pie(
+    fig=px.pie(
             sum_delay,
             values='minute',
             names='index',
             template='plotly_white',
             title='total delay time (minute)'
-        ),
+        )
+
+    fig.update_layout(legend = dict(font = dict(size = 8)),
+                legend_title = dict(font = dict(size = 8)))
+
+    col1.plotly_chart(fig,
         use_container_width=True)
 
 
@@ -229,15 +232,20 @@ with col1:
     st.write('### % of flight per company')
 
 
-    col1.plotly_chart(
-        px.pie(
+    fig = px.pie(
             stats,
             values='count',
             # names='Name',
             color='Reporting_Airline',
             template='plotly_white',
             color_discrete_sequence=px.colors.cyclical.IceFire
-        ), use_container_width=True
+        )
+
+    fig.update_layout(legend = dict(font = dict(size = 50)),
+                  legend_title = dict(font = dict(size = 30)))
+
+    col1.plotly_chart(
+        fig, use_container_width=True
     )
 
 
@@ -253,7 +261,7 @@ with col2:
         # names='Name',
         color='Delay_Level',
         template='plotly_white',
-        labels={"Delay_Level": "Delay level",
+        labels={"count": "flight count",
                 "Reporting_Airline": "Airline"},
     )
     newnames = {'0':'on time (t < 5 min)', '1': 'small delay (5 < t < 45 min)', '2': 'large delay (t > 45 min)'}
@@ -262,6 +270,7 @@ with col2:
                                       hovertemplate = t.hovertemplate.replace(t.name, newnames[t.name])
                                      )
                   )
+    fig.update_layout(xaxis_title="flight count")
     
     col2.plotly_chart(fig, use_container_width=False)
 
@@ -272,7 +281,7 @@ mean = df_cleaned_selection[['DepDelay', 'ArrDelay']].groupby(
 
 with col3:
 
-    st.write('### DepDelay - ArrDelay in comparison')
+    st.write('### DEP delay vs. ARR delay')
 
 
     fig = px.histogram(
@@ -281,6 +290,7 @@ with col3:
         y='Reporting_Airline',
         # names='Name',
         template='plotly_white', barmode='group',
+        labels={"Reporting_Airline": "Airline"}
     )
-    fig.update_layout(legend_title='')
+    fig.update_layout(legend_title='', xaxis_title="average delay time (minute)")
     col3.plotly_chart(fig, use_container_width=False)
