@@ -8,7 +8,7 @@ from streamlit_folium import st_folium
 from folium.features import DivIcon
 
 
-st.set_page_config(page_title="Reporting-Airline Ontime Performance", layout='wide',
+st.set_page_config(page_title="Reporting-Airline Ontime Performance", layout='centered',
                    page_icon=':airplane:')
 
 st.markdown('# Reporting-Airline Ontime Performance')
