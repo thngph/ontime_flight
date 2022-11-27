@@ -144,10 +144,10 @@ with st.expander("**Overview**",expanded=True):
                 f"{round(df_cleaned_selection[df_cleaned_selection['Avg_Delay'] > 5].shape[0]/df_cleaned_selection.shape[0]*100, 2)}%")
 
     col2.metric("Distance",
-                f"{numerize(round(df_cleaned_selection['Distance'].sum(), 2))} km")
+                f"{numerize(round(df_cleaned_selection['Distance'].sum()*1.609344, 2))} km")
 
     col3.metric("Avg distance",
-                f"{round(df_cleaned_selection['Distance'].mean(), 2)} km")
+                f"{round(df_cleaned_selection['Distance'].mean()*1.609344, 2)} km")
 
 
     col4.metric("Total delay",

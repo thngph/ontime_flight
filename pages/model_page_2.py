@@ -197,6 +197,7 @@ Test set: flight from 15 - 20/01/2022""")
         plt.legend()
         st.write(fig)
 with st.expander("", True):
+    
     st.write('### Evaluation')
 
     col1, col2, col3 = st.columns(3)
