@@ -2,7 +2,12 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 import datetime
+from numerize.numerize import numerize
 
+import folium
+import airportsdata
+from streamlit_folium import st_folium
+from folium.features import DivIcon
 
 
 
@@ -15,6 +20,8 @@ st.set_page_config(page_title="Reporting-Airline Ontime Performance", layout='wi
 reduce_header_height_style = """
     <style>
         div.block-container {padding-top : 1rem;}
+        ul.streamlit-expander {border-width: 2px !important; border-radius: .5rem;}
+        div.streamlit-expanderHeader p {font-size: 20px;}
     </style>
 """
 st.markdown(reduce_header_height_style, unsafe_allow_html=True)
@@ -38,7 +45,7 @@ df_cleaned = get_data('./data/cleaned/2022.csv')
 st.sidebar.header("Please Filter Here:")
 
 airline = st.sidebar.multiselect(
-    "Select the Airline:",
+    "Airline:",
     options=df_cleaned["Reporting_Airline"].unique(),
     default=df_cleaned["Reporting_Airline"].unique()
 )
@@ -84,77 +91,73 @@ count_cause = pd.DataFrame(data=count, columns=['Cause', 'Count'])
 
 
 #---------------------------- [ HEADER ] ----------------------------
-
-
 st.markdown('# Reporting-Airline Ontime Performance')
-st.markdown('## Flight stats')
-st.write('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras interdum tristique quam id congue. Fusce consequat mi vitae risus euismod, eget sodales est viverra. Phasellus in ultricies libero, vel tristique est. Integer tincidunt sodales nulla et maximus. Vivamus in arcu nisl. Aenean a facilisis eros. Ut semper pretium nibh. Praesent felis leo, accumsan sit amet nisl vel, pretium tincidunt nisl. Ut ullamcorper diam sed metus dapibus varius. Integer sapien risus, congue id ullamcorper porttitor, mollis in odio. Quisque vitae suscipit orci, vitae maximus mauris. Vivamus lacinia in urna et imperdiet. Aenean arcu nibh, ornare ac condimentum eget, vulputate sed felis. Proin sem dolor, fringilla in lacus eu, rhoncus tincidunt sapien. Donec pretium quam sit amet vestibulum tristique.')
+st.markdown('## Flight Stats')
+with st.expander("", True):
+
+
+    st.write('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras interdum tristique quam id congue. Fusce consequat mi vitae risus euismod, eget sodales est viverra. Phasellus in ultricies libero, vel tristique est. Integer tincidunt sodales nulla et maximus. Vivamus in arcu nisl. Aenean a facilisis eros. Ut semper pretium nibh. Praesent felis leo, accumsan sit amet nisl vel, pretium tincidunt nisl. Ut ullamcorper diam sed metus dapibus varius. Integer sapien risus, congue id ullamcorper porttitor, mollis in odio. Quisque vitae suscipit orci, vitae maximus mauris. Vivamus lacinia in urna et imperdiet. Aenean arcu nibh, ornare ac condimentum eget, vulputate sed felis. Proin sem dolor, fringilla in lacus eu, rhoncus tincidunt sapien. Donec pretium quam sit amet vestibulum tristique.')
 
 
 
 #---------------------------- [ TIME PLOT ] ----------------------------
 
 
-col0 = st.columns(1)
+    col0 = st.columns(1)
 
-flight_count = df_cleaned_selection[['FlightDate', 'Avg_Delay']].groupby(
-    'FlightDate').count().reset_index()
-fig = px.line(flight_count, x='FlightDate', y="Avg_Delay",
-            labels={"FlightDate": "Date",
-                "Avg_Delay": "Flight count"},)
-# fig.update_traces(line_color='black')
+    flight_count = df_cleaned_selection[['FlightDate', 'Avg_Delay']].groupby(
+        'FlightDate').count().reset_index()
+    fig = px.line(flight_count, x='FlightDate', y="Avg_Delay",
+                labels={"FlightDate": "Date",
+                    "Avg_Delay": "Flight count"},)
+    # fig.update_traces(line_color='black')
 
-col0[0].plotly_chart(fig, use_container_width=True)
+    col0[0].plotly_chart(fig, use_container_width=True)
 
 
 
 #---------------------------- [ DATA OVERVIEW ] ----------------------------
 
+with st.expander("**Overview**",expanded=True):
 
-st.markdown('### Overview')
+
+    col1, col2, col3, col4, col5 = st.columns([2, 1, 1, 2, 1])
 
 
-col1, col2, col3, col4, col5 = st.columns([1, 1, 2, 2, 3])
+    col1.metric("Observed days",
+                f"{d_start.strftime('%d/%m/%y')} - {d_end.strftime('%d/%m/%y')}", (d_end-d_start).days, 'off')
 
-col1.metric("Number of flight", df_cleaned_selection.shape[0])
+    col2.metric("Number of flight", numerize(df_cleaned_selection.shape[0]))
 
-col2.metric("Number of Airline",
-            df_cleaned_selection["Reporting_Airline"].nunique())
+    col3.metric("Number of Airline",
+                df_cleaned_selection["Reporting_Airline"].nunique())
 
-col3.metric("Total delay time",
-            f"{round(df_cleaned_selection['Avg_Delay'].sum()/60/24, 2)} days")
+    col4.metric("Total airtime",
+                f"{round(df_cleaned_selection['AirTime'].sum()/60/24, 2)} days")
 
-col4.metric("Avg delay time per flight",
-            f"{round(df_cleaned_selection['Avg_Delay'].mean(), 3)} mins")
+    col5.metric("Avg airtime",
+                f"{round(df_cleaned_selection['AirTime'].mean()/60, 2)} hours")
 
-col5.metric("Observed days",
-            f"{d_start.strftime('%d/%m/%y')} - {d_end.strftime('%d/%m/%y')}", (d_end-d_start).days, 'off')
 
+
+    col1.metric("Avg delay rate (t > 5 mins)",
+                f"{round(df_cleaned_selection[df_cleaned_selection['Avg_Delay'] > 5].shape[0]/df_cleaned_selection.shape[0]*100, 2)}%")
+
+    col2.metric("Distance",
+                f"{numerize(round(df_cleaned_selection['Distance'].sum(), 2))} km")
+
+    col3.metric("Avg distance",
+                f"{round(df_cleaned_selection['Distance'].mean(), 2)} km")
+
+
+    col4.metric("Total delay",
+                f"{round(df_cleaned_selection['Avg_Delay'].sum()/60/24, 2)} days")
+
+    col5.metric("Avg delay",
+                f"{round(df_cleaned_selection['Avg_Delay'].mean(), 2)} mins")
 
 
 #---------------------------- [ ROW 1 ] ----------------------------
-
-
-col1, col2, col3 = st.columns([4, 7, 5])
-
-
-
-with col1:
-
-    st.markdown('### Cause of Delay')
-    fig=px.pie(
-            sum_delay,
-            values='minute',
-            names='index',
-            template='plotly_white',
-            title='total delay time (minute)'
-        )
-
-    fig.update_layout(legend = dict(font = dict(size = 8)),
-                legend_title = dict(font = dict(size = 8)))
-
-    col1.plotly_chart(fig,
-        use_container_width=True)
 
 
 
@@ -171,9 +174,29 @@ stats = df_cleaned_selection['Avg_Delay'].groupby(
 
 
 
+
+col1, col2, col3 = st.columns([4, 7, 5])
+
+with col1:
+    with st.expander("**Cause of Delay**",True):
+        fig=px.pie(
+                sum_delay,
+                values='minute',
+                names='index',
+                template='plotly_white',
+                title='total delay time (minute)',
+                hole=.4,
+            )
+
+        fig.update_layout(legend = dict(font = dict(size = 8)),
+                    legend_title = dict(font = dict(size = 8)))
+        st.plotly_chart(fig, use_container_width=True)
+
+
+
 with col2:
 
-    st.write('### No. flights per Airline')
+    st.write('**No. flights per Airline**')
 
 
     fig = px.bar(
@@ -191,10 +214,10 @@ with col2:
 
     newnames = {t: c2airline[t] for t in stats['Reporting_Airline'].unique()}
     fig.for_each_trace(lambda t: t.update(name = newnames[t.name],
-                                      legendgroup = newnames[t.name],
-                                      hovertemplate = t.hovertemplate.replace(t.name, newnames[t.name])
-                                     )
-                  )
+                                    legendgroup = newnames[t.name],
+                                    hovertemplate = t.hovertemplate.replace(t.name, newnames[t.name])
+                                    )
+                )
 
     col2.plotly_chart(fig, use_container_width=True)
 
@@ -202,7 +225,7 @@ with col2:
 
 with col3:
 
-    st.write('### Mean delay per Airline')
+    st.write('**Mean delay per Airline**')
 
 
     col_2_bar = px.bar(
@@ -222,75 +245,153 @@ with col3:
 
 
 
+
 #---------------------------- [ ROW 2 ] ----------------------------
 
-
-col1, col2, col3 = st.columns([4, 7, 5])
-
-with col1:
-
-    st.write('### % of flight per company')
+with st.expander("**Delay Analysis**", True):
+    col2, col3 = st.columns(2)
 
 
-    fig = px.pie(
-            stats,
-            values='count',
+    with col2:
+
+        st.write('**Delay level per Airline**')
+
+
+        fig = px.histogram(
+            df_cleaned_selection,
+            y='Reporting_Airline',
             # names='Name',
-            color='Reporting_Airline',
+            color='Delay_Level',
             template='plotly_white',
-            color_discrete_sequence=px.colors.cyclical.IceFire
+            labels={"count": "flight count",
+                    "Reporting_Airline": "Airline"},
         )
+        newnames = {'0':'on time (t < 5 min)', '1': 'small delay (5 < t < 45 min)', '2': 'large delay (t > 45 min)'}
+        fig.for_each_trace(lambda t: t.update(name = newnames[t.name],
+                                        legendgroup = newnames[t.name],
+                                        hovertemplate = t.hovertemplate.replace(t.name, newnames[t.name])
+                                        )
+                    )
+        fig.update_layout(xaxis_title="flight count")
+        
+        col2.plotly_chart(fig, use_container_width=False)
 
-    fig.update_layout(legend = dict(font = dict(size = 50)),
-                  legend_title = dict(font = dict(size = 30)))
-
-    col1.plotly_chart(
-        fig, use_container_width=True
-    )
+    mean = df_cleaned_selection[['DepDelay', 'ArrDelay']].groupby(
+        df_cleaned_selection['Reporting_Airline']).mean().reset_index()
 
 
 
-with col2:
+    with col3:
 
-    st.write('### Delay level per Airline')
+        st.write('**DEP delay vs. ARR delay**')
 
 
-    fig = px.histogram(
-        df_cleaned_selection,
-        y='Reporting_Airline',
-        # names='Name',
-        color='Delay_Level',
-        template='plotly_white',
-        labels={"count": "flight count",
-                "Reporting_Airline": "Airline"},
-    )
-    newnames = {'0':'on time (t < 5 min)', '1': 'small delay (5 < t < 45 min)', '2': 'large delay (t > 45 min)'}
-    fig.for_each_trace(lambda t: t.update(name = newnames[t.name],
-                                      legendgroup = newnames[t.name],
-                                      hovertemplate = t.hovertemplate.replace(t.name, newnames[t.name])
-                                     )
-                  )
-    fig.update_layout(xaxis_title="flight count")
+        fig = px.histogram(
+            mean,
+            x=['DepDelay', 'ArrDelay'],
+            y='Reporting_Airline',
+            # names='Name',
+            template='plotly_white', barmode='group',
+            labels={"Reporting_Airline": "Airline"}
+        )
+        fig.update_layout(legend_title='', xaxis_title="average delay time (minute)")
+        col3.plotly_chart(fig, use_container_width=False)
+
+#---------------------------- [ ROW 3 - AIRLINE ] ----------------------------
+
+
+st.markdown('### Airline Statistics')
+with st.expander("Filter airline", True):
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        selected_airline = st.selectbox(
+            "Airline:",
+            options=df_cleaned["Reporting_Airline"].unique(),
+        )
+    with col2:
+        d_start_selected = st.date_input(
+            "Start date:",
+            d_start,
+            min_value=d_start,
+            max_value=d_end,
+            key='2',)
+
+    with col3:
+        d_end_selected = st.date_input(
+            "End date:",
+            d_end,
+            min_value=d_start,
+            max_value=d_end,
+            key='3',)
+
+df_airline_selection = df_cleaned_selection.query(
+    "Reporting_Airline == @selected_airline & @d_start_selected <= FlightDate <= @d_end_selected "
+)
+
+
+
+
+
+
+airports = airportsdata.load('IATA')
+
+def draw_map(df):
+    """ Return a folium.Map() object represents flights of selected airport.
+    """
+
+    df_count=df.groupby(['Origin', 'Dest']).size().reset_index(name='counts')
+
+    m = folium.Map(location=[39.198744, -102.083682],  width=750, height=500)
+    m.fit_bounds([[45, -125], [24, -60]])
+
+    for i in range(df_count.shape[0]):
+        
+        
+        try:
+            lat1, lon1,lat2, lon2=airports[df_count.iloc[i][0]]['lat'], airports[df_count.iloc[i][0]]['lon'], airports[df_count.iloc[i][1]]['lat'],  airports[df_count.iloc[i][1]]['lon']
+            folium.PolyLine([[lat1, lon1],  [lat2, lon2]],weight = 0.2).add_to(m)
+        except:
+            pass
+    list_airport=[*list(df_count['Origin']), *list(df_count['Dest'])]
+    airport=set(list_airport)
+    for i in airport:
+        try:
+            folium.map.Marker(
+                [airports[i]['lat'], airports[i]['lon']],
+                icon=DivIcon(
+                    icon_size=(250,36),
+                    icon_anchor=(0,0),
+                    html='<div style="font-size: 8pt">'+i+'</div>',
+                    )
+                ).add_to(m)
+        except:
+            pass
+
+    return m
+
+
+with st.expander("", True):
+
+    st.markdown(f"### {selected_airline} - {c2airline[selected_airline]} performance ({d_start_selected.strftime('%d/%m/%y')} - {d_end_selected.strftime('%d/%m/%y')})")
     
-    col2.plotly_chart(fig, use_container_width=False)
-
-mean = df_cleaned_selection[['DepDelay', 'ArrDelay']].groupby(
-    df_cleaned_selection['Reporting_Airline']).mean().reset_index()
+    
+    st.write("")
 
 
+    col0, col1, col2 = st.columns([1, 2, 6])
 
-with col3:
+    col1.metric("Delay rate", 
+        f"{round(df_airline_selection[df_airline_selection['Avg_Delay'] > 5].shape[0]/df_airline_selection.shape[0]*100, 2)}%")
+        
+    col1.metric("Number of flight", numerize(df_airline_selection.shape[0]))
 
-    st.write('### DEP delay vs. ARR delay')
+    col1.metric("Avg delay",
+        f"{round(df_airline_selection['Avg_Delay'].mean(), 2)} mins")
+
+    with st.spinner(""):
 
 
-    fig = px.histogram(
-        mean,
-        x=['DepDelay', 'ArrDelay'],
-        y='Reporting_Airline',
-        # names='Name',
-        template='plotly_white', barmode='group',
-        labels={"Reporting_Airline": "Airline"}
-    )
-    fig.update_layout(legend_title='', xaxis_title="average delay time (minute)")
-    col3.plotly_chart(fig, use_container_width=False)
+        with col2:
+            map = draw_map(df_airline_selection)
+
+            st_folium(map,width=750, height=500)
