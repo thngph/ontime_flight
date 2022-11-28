@@ -19,7 +19,6 @@ st.set_page_config(page_title="Reporting-Airline Ontime Performance", layout='wi
 
 reduce_header_height_style = """
     <style>
-        div.block-container {padding-top : 1rem;}
         ul.streamlit-expander {border-width: 2px !important; border-radius: .5rem;}
         div.streamlit-expanderHeader p {font-size: 20px;}
     </style>
@@ -36,33 +35,35 @@ df_cleaned = get_data('./data/cleaned/2022.csv')
 
 
 
-#---------------------------- [ SIDE BAR ] ----------------------------
 
 
-# The below code is creating a sidebar on the left side of the page. The sidebar is allowing the user
-# to select the airline and the date range.
+#---------------------------- [ FILTER ] ----------------------------
 
-st.sidebar.header("Please Filter Here:")
 
-airline = st.sidebar.multiselect(
-    "Airline:",
-    options=df_cleaned["Reporting_Airline"].unique(),
-    default=df_cleaned["Reporting_Airline"].unique()
-)
+# Allowing the user to select the airline and the date range.
+col1, col2 = st.columns([5,1])
+with col1:
+    st.markdown('# Reporting-Airline Ontime Performance')
+with col2:
+    with st.expander("Filter data", False):
 
-d_start = st.sidebar.date_input(
-    "Start date:",
-    datetime.date(2022, 1, 1),
-    min_value=datetime.date(2022, 1, 1),
-    max_value=datetime.date(2022, 3, 15))
-st.sidebar.write(d_start)
+        airline = st.multiselect(
+            "Airline:",
+            options=df_cleaned["Reporting_Airline"].unique(),
+            default=df_cleaned["Reporting_Airline"].unique()
+        )
 
-d_end = st.sidebar.date_input(
-    "End date:",
-    datetime.date(2022, 3, 15),
-    min_value=datetime.date(2022, 1, 1),
-    max_value=datetime.date(2022, 3, 15))
-st.sidebar.write(d_end)
+        d_start = st.date_input(
+            "Start date:",
+            datetime.date(2022, 1, 1),
+            min_value=datetime.date(2022, 1, 1),
+            max_value=datetime.date(2022, 3, 15))
+
+        d_end = st.date_input(
+            "End date:",
+            datetime.date(2022, 3, 15),
+            min_value=datetime.date(2022, 1, 1),
+            max_value=datetime.date(2022, 3, 15))
 
 # year = st.sidebar.slider(
 #      'Select a range of Year:',
@@ -91,12 +92,10 @@ count_cause = pd.DataFrame(data=count, columns=['Cause', 'Count'])
 
 
 #---------------------------- [ HEADER ] ----------------------------
-st.markdown('# Reporting-Airline Ontime Performance')
+
 st.markdown('## Flight Stats')
-with st.expander("", True):
+with st.expander("Flight count over time", True):
 
-
-    st.write('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras interdum tristique quam id congue. Fusce consequat mi vitae risus euismod, eget sodales est viverra. Phasellus in ultricies libero, vel tristique est. Integer tincidunt sodales nulla et maximus. Vivamus in arcu nisl. Aenean a facilisis eros. Ut semper pretium nibh. Praesent felis leo, accumsan sit amet nisl vel, pretium tincidunt nisl. Ut ullamcorper diam sed metus dapibus varius. Integer sapien risus, congue id ullamcorper porttitor, mollis in odio. Quisque vitae suscipit orci, vitae maximus mauris. Vivamus lacinia in urna et imperdiet. Aenean arcu nibh, ornare ac condimentum eget, vulputate sed felis. Proin sem dolor, fringilla in lacus eu, rhoncus tincidunt sapien. Donec pretium quam sit amet vestibulum tristique.')
 
 
 
@@ -104,6 +103,7 @@ with st.expander("", True):
 
 
     col0 = st.columns(1)
+    
 
     flight_count = df_cleaned_selection[['FlightDate', 'Avg_Delay']].groupby(
         'FlightDate').count().reset_index()
@@ -113,8 +113,6 @@ with st.expander("", True):
     # fig.update_traces(line_color='black')
 
     col0[0].plotly_chart(fig, use_container_width=True)
-
-
 
 #---------------------------- [ DATA OVERVIEW ] ----------------------------
 
@@ -187,10 +185,11 @@ with col1:
                 title='total delay time (minute)',
                 hole=.4,
             )
-
         fig.update_layout(legend = dict(font = dict(size = 8)),
                     legend_title = dict(font = dict(size = 8)))
         st.plotly_chart(fig, use_container_width=True)
+
+
 
 
 
