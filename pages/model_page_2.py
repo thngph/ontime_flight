@@ -86,18 +86,19 @@ with st.expander("", True):
 
 
 st.markdown("### Feature selection")
-col1, col2 = st.columns([2,1])
+# col1, col2 = st.columns([2,1])
 
-col1.write("**Numerical variables**")
-col2.write("**Categorical variables**")
-
-col1, col2, col3 = st.columns(3)
+st.write("**Numerical variables**")
 
 
 
-with col1:
-    with st.expander("Heatmap and Delay-time distribution", True):
 
+
+
+with st.expander("Heatmap and Delay-time distribution", True):
+    col1, col2, = st.columns(2)
+
+    with col1:
 
         corr = df.drop(['Avg_Delay', 'Reporting_Airline', 'Dest',], axis=1)[['DayOfWeek',  
                 'CRSDepTime', 'DepTime', 'DepDelay', 'CRSArrTime', 'ArrTime',
@@ -108,6 +109,7 @@ with col1:
         sns.heatmap(corr, mask=mask, annot=True)
         st.write(fig)
 
+    with col2:
 
         hist_data = df[['ArrDelay','DepDelay']].to_numpy().T
         group_labels = ['ArrDelay','DepDelay']
@@ -119,20 +121,18 @@ with col1:
     
 
 
-    # col1, col2 = st.columns(2)
 
 
 
-
-
-
-with col2:
-    with st.expander("after removing unexpected values (`DepDelay` > 150 mins)", True):
+with st.expander("after removing unexpected values (`DepDelay` > 150 mins)", True):
+    col1, col2 = st.columns(2)
+    with col1:
+    
 
         fig, ax = plt.subplots()
         sns.heatmap(df_ft.drop(['Reporting_Airline', 'Dest', ], axis=1).corr(), mask=mask, annot=True)
         st.write(fig)
-
+    with col2:
         hist_data = df_ft[['ArrDelay','DepDelay']].to_numpy().T
         group_labels = ['ArrDelay','DepDelay']
 
@@ -142,24 +142,21 @@ with col2:
 
 df_ft['isWeekday'] = df_ft['DayOfWeek'] < 6
 
-st.write("")
-with col3:
-    with st.expander("", True):
+with st.expander("Categorical variable", True):
+    col1, col2 = st.columns(2)
+    with col1:
+
     # col1, col2 = st.columns(2)
     # with col1:
         st.write("ArrDelay in weekday and weekend")
         fig, ax = plt.subplots()
         sns.boxplot(data=df_ft, y='ArrDelay', x='isWeekday')
         st.write(fig)
-        # with col2:
-        st.write("")
-        st.write("")
+    with col2:
         st.write("ArrDelay per airline")
         fig, ax = plt.subplots()
         sns.boxplot(data=df_ft, x='ArrDelay', y='Reporting_Airline', orient='h')
         st.write(fig)
-
-
 
 
 

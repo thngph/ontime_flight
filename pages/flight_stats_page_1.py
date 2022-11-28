@@ -184,6 +184,7 @@ with col1:
                 template='plotly_white',
                 title='total delay time (minute)',
                 hole=.4,
+                color_discrete_sequence=px.colors.cyclical.IceFire[::3],
             )
         fig.update_layout(legend = dict(font = dict(size = 8)),
                     legend_title = dict(font = dict(size = 8)))
@@ -254,8 +255,9 @@ with st.expander("**Delay Analysis**", True):
     with col2:
 
         st.write('**Delay level per Airline**')
-
-
+        colors = px.colors.cyclical.IceFire[1::2]
+        colors_a=colors[:3]
+        
         fig = px.histogram(
             df_cleaned_selection,
             y='Reporting_Airline',
@@ -264,7 +266,9 @@ with st.expander("**Delay Analysis**", True):
             template='plotly_white',
             labels={"count": "flight count",
                     "Reporting_Airline": "Airline"},
+            color_discrete_sequence=colors_a[::-1],
         )
+
         newnames = {'0':'on time (t < 5 min)', '1': 'small delay (5 < t < 45 min)', '2': 'large delay (t > 45 min)'}
         fig.for_each_trace(lambda t: t.update(name = newnames[t.name],
                                         legendgroup = newnames[t.name],
@@ -281,7 +285,6 @@ with st.expander("**Delay Analysis**", True):
 
 
     with col3:
-
         st.write('**DEP delay vs. ARR delay**')
 
 
@@ -291,7 +294,8 @@ with st.expander("**Delay Analysis**", True):
             y='Reporting_Airline',
             # names='Name',
             template='plotly_white', barmode='group',
-            labels={"Reporting_Airline": "Airline"}
+            labels={"Reporting_Airline": "Airline"},
+            color_discrete_sequence=colors_a[::-1]
         )
         fig.update_layout(legend_title='', xaxis_title="average delay time (minute)")
         col3.plotly_chart(fig, use_container_width=False)
@@ -299,7 +303,7 @@ with st.expander("**Delay Analysis**", True):
 #---------------------------- [ ROW 3 - AIRLINE ] ----------------------------
 
 
-st.markdown('### Airline Statistics')
+st.markdown('### Airline performance')
 with st.expander("Filter airline", True):
     col1, col2, col3 = st.columns(3)
     with col1:
