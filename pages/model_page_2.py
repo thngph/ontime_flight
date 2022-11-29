@@ -61,7 +61,7 @@ y_train, y_test= train[target], test[target]
 
 
 pipe = Pipeline([
-    ('scaler', MinMaxScaler()),
+    # ('scaler', MinMaxScaler()),
     ('model', LinearRegression())    
     ])
 pipe.fit(x_train, y_train)
@@ -77,7 +77,7 @@ with st.expander("", True):
     with col3:
         deptime = st.time_input('Departure time')
 
-    res = pipe.predict([[depdelay, (deptime.hour * 60 + deptime.minute)]])
+    res = pipe.predict([[depdelay, deptime.hour * 60 + deptime.minute]])
 
     st.metric('Predicted arrival delay', f'{round(res[0],4)} mins')
 
