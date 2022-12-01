@@ -198,17 +198,19 @@ with st.expander("", True):
     
     st.write('### Evaluation')
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
 
     from sklearn.metrics import mean_absolute_error,mean_squared_error
   
     mae = mean_absolute_error(y_true=y_test,y_pred=y_pred)
     mse = mean_squared_error(y_true=y_test,y_pred=y_pred)
     rmse = mean_squared_error(y_true=y_test,y_pred=y_pred,squared=False)
+    r2 = pipe.score(y_test, y_pred)
 
     col1.metric("MAE", round(mae,4))
     col2.metric("MSE", round(mse, 4))
     col3.metric("RMSE", round(rmse,4))
+    col3.metric("R2", round(r2,4))
 
 
 
