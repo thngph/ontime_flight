@@ -95,7 +95,7 @@ st.write("**Numerical variables**")
 
 
 
-with st.expander("Heatmap and Delay-time distribution", True):
+with st.expander("Heatmap and Delay-time distribution", False):
     col1, col2, = st.columns(2)
 
     with col1:
@@ -124,7 +124,7 @@ with st.expander("Heatmap and Delay-time distribution", True):
 
 
 
-with st.expander("after removing unexpected values (`DepDelay` > 150 mins)", True):
+with st.expander("after removing unexpected values (`DepDelay` > 150 mins)", False):
     col1, col2 = st.columns(2)
     with col1:
     
@@ -142,7 +142,7 @@ with st.expander("after removing unexpected values (`DepDelay` > 150 mins)", Tru
 
 df_ft['isWeekday'] = df_ft['DayOfWeek'] < 6
 
-with st.expander("Categorical variable", True):
+with st.expander("Categorical variable", False):
     col1, col2 = st.columns(2)
     with col1:
 
@@ -161,7 +161,7 @@ with st.expander("Categorical variable", True):
 
 
 st.markdown("### Modeling and Evaluation")
-with st.expander("Multivariate Linear Regression", True):
+with st.expander("Multivariate Linear Regression", False):
 
     
 
@@ -193,6 +193,7 @@ Test set: flight from 15 - 20/01/2022""")
         sns.distplot(y_test, hist=False, color='b', label='actual value')
         plt.legend()
         st.write(fig)
+
 with st.expander("", True):
     
     st.write('### Evaluation')
