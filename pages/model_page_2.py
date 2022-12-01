@@ -205,12 +205,12 @@ with st.expander("", True):
     mae = mean_absolute_error(y_true=y_test,y_pred=y_pred)
     mse = mean_squared_error(y_true=y_test,y_pred=y_pred)
     rmse = mean_squared_error(y_true=y_test,y_pred=y_pred,squared=False)
-    r2 = pipe.score(y_test, y_pred)
+    r2 = pipe.score(x_test, y_test)
 
     col1.metric("MAE", round(mae,4))
     col2.metric("MSE", round(mse, 4))
     col3.metric("RMSE", round(rmse,4))
-    col3.metric("R2", round(r2,4))
+    col4.metric("R2", round(r2,4))
 
 
 
